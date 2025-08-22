@@ -1,0 +1,32 @@
+# Node / Next.js
+apps/web/node_modules/
+apps/web/.next/
+apps/web/out/
+apps/web/.env.local
+apps/web/.env.development.local
+apps/web/.env.test.local
+apps/web/.env.production.local
+
+# Laravel
+apps/api/vendor/
+apps/api/node_modules/
+apps/api/public/storage
+apps/api/storage/*.key
+apps/api/storage/app/public
+apps/api/storage/framework/cache/*
+apps/api/storage/framework/sessions/*
+apps/api/storage/framework/views/*
+apps/api/storage/logs/*
+apps/api/.env
+apps/api/.phpunit.result.cache
+
+# Postgres data
+data/sail-pgsql/*
+!data/sail-pgsql/.gitkeep
+
+# OS / Editor
+.DS_Store
+*.swp
+*.swo
+.idea/
+.vscode/
