@@ -48,7 +48,7 @@ palmoutsourcing-task/
    cd palmoutsourcing-task
    ```
 
-2. **Prepare environment files**
+2. **Prepare environment files (Optional)**
 
    * Root directory: copy `.env.example` → `.env` inside `./`
    * Laravel API: copy `.env.example` → `.env` inside `apps/api`
@@ -74,7 +74,13 @@ palmoutsourcing-task/
    ```
 
 3. **Start containers**
-
+   
+   First time application services setup
+   ```bash
+   make install
+   ```
+   
+   Running the application services
    ```bash
    make up
    ```
@@ -95,7 +101,7 @@ palmoutsourcing-task/
 ## ▶️ Running the App
 
 * **Backend API (Laravel)** → [http://localhost:8081](http://localhost:8081)
-* **Swagger Docs** → [http://localhost:8081/api/documentation](http://localhost:8081/api/documentation)
+* **Swagger Docs** → [http://localhost:8081/api/docs](http://localhost:8081/api/docs)
 * **Frontend (Next.js)** → [http://localhost:3001](http://localhost:3001)
 
 ---
@@ -113,6 +119,8 @@ To simplify commands, use the included `Makefile`:
 | `make seed`    | Seed the database with demo data     |
 | `make tinker`  | Open Laravel Tinker inside container |
 | `make swagger` | Regenerate Swagger docs              |
+| `make clean`   | Clean up the app to initial state    |
+| `make install` | Installs the application             |
 
 Example:
 
@@ -139,6 +147,25 @@ make swagger   # rebuild docs
 * Example protected route:
 
   * `GET /api/profile` → returns authenticated user
+
+---
+
+## 🐞 Known Bugs & Issues
+
+* During initial project setup by running `make install` command, the web container may need a teardown then running it back to ensure it's working as expected by running: `make down && make up` commands.
+* Since CI/CD was out of scope, additional project scripts or command may need implementation to handle building backend image, and front-end image as well.
+* Front-end pagination may lag sometimes in updating the number of pages available for navigation after changing the amount of tasks displayed per page.
+* RESTful API endpoints should've been prefixed by `v1` URL segment to follow best practices.
+* CSRF handling may require additional tweaks and testing to ensure it's working as expected.
+* Backend task listing endpoint may need further refactoring to standardize the response format.
+* If web container fails to run at all, you may need to run it using local node as follows:
+  ```bash
+  cd apps/web
+  rm -rf node_modules
+  npm ci
+  npm run dev
+  ```
+  The application would be available via: [http://localhost:3000](http://localhost:3000), however should still run without any problems.
 
 ---
 

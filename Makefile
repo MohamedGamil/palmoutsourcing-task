@@ -31,6 +31,10 @@ prune:
 
 clean: down
 	$(SAIL_CMD) down -v --rmi all
+	rm -f ./apps/api/public/storage || true
+	rm -rf ./apps/api/vendor || true
+	rm -rf ./apps/api/node_modules || true
+	rm -rf ./apps/web/node_modules || true
 	rm -rf ./data/sail-pgsql/* || true
 
 
@@ -43,7 +47,9 @@ clean: down
 ## - runs migrations (+ optional seed)
 ## - generates Swagger docs
 ## - installs Node deps for Next.js
-install: up
+install:
+	docker run --rm -v $(PWD)/apps/api:/var/www/html -w /var/www/html composer install --no-interaction --prefer-dist
+	make up
 	# Ensure API dependencies are installed (Composer via Sail)
 	$(SAIL_CMD) composer install --no-interaction --prefer-dist
 	# App key + storage symlink
