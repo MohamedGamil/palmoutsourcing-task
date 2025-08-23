@@ -4,11 +4,11 @@ export default function Home() {
   return (
     <div className="bg-gray-50 dark:bg-gray-900">
       {/* Hero Section */}
-      <div className="relative bg-white dark:bg-gray-800 overflow-hidden">
+      <div className="relative bg-white dark:bg-gray-900 overflow-hidden">
         <div className="max-w-7xl mx-auto">
-          <div className="relative z-10 pb-8 bg-white dark:bg-gray-800 sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
+          <div className="relative z-10 pb-8 bg-white dark:bg-gray-900 sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
             <svg
-              className="hidden lg:block absolute right-0 inset-y-0 h-full w-48 text-white dark:text-gray-800 transform translate-x-1/2"
+              className="hidden lg:block absolute right-0 inset-y-0 h-full w-48 text-white dark:text-gray-900 transform translate-x-1/2"
               fill="currentColor"
               viewBox="0 0 100 100"
               preserveAspectRatio="none"
@@ -21,7 +21,7 @@ export default function Home() {
               <div className="sm:text-center lg:text-left">
                 <h1 className="pt-10 sm:pt-12 md:pt-16 lg:pt-20 xl:pt-28 text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white sm:text-5xl md:text-6xl">
                   <span className="block xl:inline">Welcome to your</span>{" "}
-                  <span className="block text-blue-600 xl:inline">Task Dashboard</span>
+                  <span className="block text-blue-500 xl:inline">Task Dashboard</span>
                 </h1>
                 <p className="mt-3 text-base text-gray-500 dark:text-gray-300 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
                   Manage your tasks efficiently with our modern task management system. 
@@ -31,7 +31,7 @@ export default function Home() {
                   <div className="rounded-md shadow">
                     <Link
                       href="/tasks"
-                      className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10"
+                      className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-bold rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10"
                     >
                       View Tasks
                     </Link>
@@ -51,16 +51,16 @@ export default function Home() {
         </div>
         <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
           <div className="h-56 w-full bg-gradient-to-r from-blue-400 to-purple-500 sm:h-72 md:h-96 lg:w-full lg:h-full flex items-center justify-center">
-            <div className="text-white text-6xl">📋</div>
+            <div className="text-white text-9xl select-none">📋</div>
           </div>
         </div>
       </div>
 
       {/* Features Section */}
-      <div id="features" className="py-12 bg-white dark:bg-gray-800">
+      <div id="features" className="py-26 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:text-center">
-            <h2 className="text-base text-blue-600 font-semibold tracking-wide uppercase">Features</h2>
+            <h2 className="text-base text-blue-500 font-semibold tracking-wide uppercase">Features</h2>
             <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
               Everything you need to manage tasks
             </p>
@@ -121,17 +121,17 @@ export default function Home() {
       </div>
 
       {/* CTA Section */}
-      <div className="bg-blue-50 dark:bg-gray-900">
+      <div className="bg-blue-50 dark:bg-black">
         <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
-          <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white md:text-4xl">
-            <span className="block">Ready to get started?</span>
-            <span className="block text-blue-600">Start managing your tasks today.</span>
+          <h2 className="font-extrabold tracking-tight text-gray-900 dark:text-white">
+            <span className="block text-3xl md:text-4xl">Getting started!</span>
+            <span className="block text-2xl md:text-3xl text-blue-500">Start managing your tasks.</span>
           </h2>
           <div className="mt-8 flex lg:mt-0 lg:flex-shrink-0">
             <div className="inline-flex rounded-md shadow">
               <Link
                 href="/tasks"
-                className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-bold rounded-md text-white bg-blue-600 hover:bg-blue-700"
               >
                 Get started
               </Link>

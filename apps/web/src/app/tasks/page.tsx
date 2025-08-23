@@ -129,7 +129,7 @@ export default function TasksPage() {
             <button
               key={status}
               onClick={() => setFilter(status)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${
                 filter === status
                   ? 'bg-blue-600 text-white'
                   : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
@@ -139,7 +139,7 @@ export default function TasksPage() {
                status === 'inProgress' ? 'In Progress' :
                status.charAt(0).toUpperCase() + status.slice(1)}
               {status !== 'all' && (
-                <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-current bg-current bg-opacity-20 rounded-full">
+                <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-black bg-blue-100 bg-opacity-20 rounded-full">
                   {tasks.filter(task => task.status === status).length}
                 </span>
               )}
@@ -155,7 +155,7 @@ export default function TasksPage() {
           <button
             onClick={fetchTasks}
             disabled={loading}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-bold rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <>
@@ -167,7 +167,7 @@ export default function TasksPage() {
               </>
             ) : (
               <>
-                🔄 Refresh
+                Refresh List
               </>
             )}
           </button>
@@ -187,7 +187,7 @@ export default function TasksPage() {
                 <div className="mt-4">
                   <button
                     onClick={fetchTasks}
-                    className="bg-red-100 dark:bg-red-800 hover:bg-red-200 dark:hover:bg-red-700 text-red-800 dark:text-red-200 px-3 py-2 rounded-md text-sm font-medium"
+                    className="bg-red-100 dark:bg-red-800 hover:bg-red-200 dark:hover:bg-red-700 text-red-800 dark:text-red-200 px-3 py-2 rounded-md text-sm font-bold"
                   >
                     Try again
                   </button>
@@ -241,8 +241,7 @@ export default function TasksPage() {
                           task.status
                         )}`}
                       >
-                        {task.status === 'inProgress' ? 'In Progress' : 
-                         task.status.charAt(0).toUpperCase() + task.status.slice(1)}
+                        {task.status_label}
                       </span>
                     </div>
                   </div>
