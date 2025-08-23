@@ -3,16 +3,18 @@ name: palmoutsourcing-task
 services:
   # Laravel (Sail-based PHP-FPM + nginx inside)
   laravel.test:
+    container_name: laravel.test
     build:
-      context: ./apps/api
-      dockerfile: ./vendor/laravel/sail/runtimes/8.3/Dockerfile
+      context: './apps/api/vendor/laravel/sail/runtimes/8.4'
+      dockerfile: Dockerfile
       args:
-        WWWGROUP: '${WWWGROUP:-1000}'
+          WWWGROUP: '${WWWGROUP}'
     image: palmoutsourcing-task-laravel
     ports:
       - "8081:80"
     environment:
       WWWUSER: '${WWWUSER:-1000}'
+      WWWGROUP: '${WWWGROUP:-1000}'
       LARAVEL_SAIL: 1
     env_file:
       - ./apps/api/.env
@@ -26,6 +28,7 @@ services:
 
   # Postgres
   pgsql:
+    container_name: pgsql
     image: postgres:16
     ports:
       - "5435:5432"
@@ -44,21 +47,21 @@ services:
     networks: [sail]
 
   # Next.js dev
-  web:
-    image: node:20-alpine
-    working_dir: /app
-    command: sh -c "npm install && npm run dev"
-    ports:
-      - "3001:3000"
-    environment:
-      NODE_ENV: development
-      NEXT_PUBLIC_API_URL: "http://localhost:8081"
-    restart: unless-stopped
-    volumes:
-      - ./apps/web:/app
-    depends_on:
-      - laravel.test
-    networks: [sail]
+  # web:
+  #   image: node:20-alpine
+  #   working_dir: /app
+  #   command: sh -c "npm install && npm run dev"
+  #   ports:
+  #     - "3001:3000"
+  #   environment:
+  #     NODE_ENV: development
+  #     NEXT_PUBLIC_API_URL: "http://localhost:8081"
+  #   restart: unless-stopped
+  #   volumes:
+  #     - ./apps/web:/app
+  #   depends_on:
+  #     - laravel.test
+  #   networks: [sail]
 
 networks:
   sail:

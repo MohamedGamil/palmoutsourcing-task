@@ -22,6 +22,9 @@ cd api
 ./vendor/bin/sail composer require darkaonline/l5-swagger
 ./vendor/bin/sail artisan vendor:publish --provider "L5Swagger\L5SwaggerServiceProvider"
 
+# Stop the Sail containers
+./vendor/bin/sail down
+
 # Move back to the apps directory
 cd ..
 

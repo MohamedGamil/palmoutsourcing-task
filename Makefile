@@ -6,16 +6,19 @@ DC := docker compose
 SAIL_DIR := apps/api
 SAIL_CMD := cd $(SAIL_DIR) && SAIL_FILES=../../docker-compose.yml SAIL_PROJECT=palmoutsourcing-task ./vendor/bin/sail
 
-.PHONY: up down ps logs install migrate fresh seed tinker swagger api-composer api-artisan api-sh web-install web-sh reset-db clean prune
+.PHONY: up up-no-build down ps logs install migrate fresh seed tinker swagger api-composer api-artisan api-sh web-install web-sh reset-db clean prune
 
 
 # --- Lifecycle ---------------------------------------------------------------
 
 up:
-	$(DC) up -d --build
+	$(SAIL_CMD) up -d --build
+
+up-no-build:
+	$(SAIL_CMD) up -d
 
 down:
-	$(DC) down
+	$(SAIL_CMD) down
 
 ps:
 	$(DC) ps
@@ -27,6 +30,7 @@ prune:
 	$(DC) down -v --remove-orphans
 
 clean: down
+	$(SAIL_CMD) down -v --rmi all
 	rm -rf ./data/sail-pgsql/* || true
 
 

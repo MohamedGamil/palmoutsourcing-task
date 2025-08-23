@@ -1,3 +1,6 @@
+# Ignore .env files for the entire monorepo
+.env
+
 # Node / Next.js
 apps/web/node_modules/
 apps/web/.next/
