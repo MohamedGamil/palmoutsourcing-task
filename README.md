@@ -171,8 +171,8 @@ make swagger   # rebuild docs
 
 ## 💡 Additional Documentations & Notes
 
-* **Database Choice**: Detailed in the following document: [`docs/db-choice.md`](https://github.com/MohamedGamil/palmoutsourcing-task/blob/main/docs/db-choice.md).
 * **SRS**: Detailed in the following document: [`docs/srs.md`](https://github.com/MohamedGamil/palmoutsourcing-task/blob/main/docs/srs.md).
+* **Database Choice**: Detailed in the following document: [`docs/db-choice.md`](https://github.com/MohamedGamil/palmoutsourcing-task/blob/main/docs/db-choice.md).
 * **API Error Handling**: Detailed in the following document: [`docs/api-error-handling.md`](https://github.com/MohamedGamil/palmoutsourcing-task/blob/main/docs/api-error-handling.md).
 * **Notes**:
     - **Persistence**: Postgres data is stored under `./data/sail-pgsql/` (ignored by git, except for `.gitkeep`).
