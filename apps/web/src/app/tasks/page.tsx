@@ -219,7 +219,7 @@ export default function TasksPage() {
                     <div className="flex-1">
                       <div className="flex items-center">
                         <span className="text-xl mr-3">{getStatusIcon(task.status)}</span>
-                        <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                           {task.title}
                         </h3>
                       </div>
@@ -237,7 +237,7 @@ export default function TasksPage() {
                     </div>
                     <div className="ml-4 flex-shrink-0">
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${getStatusColor(
                           task.status
                         )}`}
                       >
