@@ -32,21 +32,19 @@ interface TasksResponse {
   message: string;
 }
 
+type StatusFilter = 'all' | 'pending' | 'done' | 'inProgress';
+
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<'all' | 'pending' | 'done' | 'inProgress'>('all');
+  const [filter, setFilter] = useState<StatusFilter>('all');
   const [pagination, setPagination] = useState<PaginationMeta | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081';
-
-  useEffect(() => {
-    fetchTasks(currentPage, filter);
-  }, [currentPage, filter, perPage]);
 
   const fetchTasks = async (page: number = 1, status?: string) => {
     try {
@@ -125,9 +123,8 @@ export default function TasksPage() {
         await fetchTasks(1, filter);
       } else {
         setCurrentPage(1);
-        setFilter(taskData.status as any);
+        setFilter(taskData.status as StatusFilter);
       }
-      
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred while creating the task');
       console.error('Error creating task:', err);
@@ -184,6 +181,10 @@ export default function TasksPage() {
       return dateString;
     }
   };
+
+  useEffect(() => {
+    fetchTasks(currentPage, filter);
+  }, [currentPage, filter, perPage]);
 
   const PageTitleSection = (
     <PageTitle

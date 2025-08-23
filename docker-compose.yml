@@ -48,9 +48,13 @@ services:
 
   # Next.js dev
   web:
+    container_name: web
+    build:
+      context: './apps/web'
+      dockerfile: Dockerfile
     image: node:20-alpine
-    working_dir: /app
-    command: sh -c "npm install && npm run dev:docker"
+    # working_dir: /app
+    # command: sh -c "npm install && npm run dev:docker"
     ports:
       - "3001:3000"
     environment:
