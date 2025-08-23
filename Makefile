@@ -87,6 +87,9 @@ api-composer:
 api-artisan:
 	$(SAIL_CMD) artisan $(t)
 
+api-make:
+	$(SAIL_CMD) artisan make:$(m)
+
 api-sh:
 	$(SAIL_CMD) bash
 
