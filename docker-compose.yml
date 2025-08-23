@@ -46,6 +46,7 @@ services:
       retries: 10
     networks: [sail]
 
+  # Temporary disabled
   # Next.js dev
   # web:
   #   image: node:20-alpine
