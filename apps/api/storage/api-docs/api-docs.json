@@ -474,16 +474,19 @@
                 "properties": {
                     "id": {
                         "description": "Task ID",
-                        "type": "integer"
+                        "type": "integer",
+                        "example": 1
                     },
                     "title": {
                         "description": "Task title",
                         "type": "string",
-                        "maxLength": 150
+                        "maxLength": 150,
+                        "example": "Complete project documentation"
                     },
                     "description": {
                         "description": "Task description",
                         "type": "string",
+                        "example": "Write comprehensive documentation for the project",
                         "nullable": true
                     },
                     "status": {
@@ -493,17 +496,40 @@
                             "pending",
                             "inProgress",
                             "done"
-                        ]
+                        ],
+                        "example": "pending"
+                    },
+                    "status_label": {
+                        "description": "Human-readable status label",
+                        "type": "string",
+                        "example": "Pending"
+                    },
+                    "is_done": {
+                        "description": "Whether the task is completed",
+                        "type": "boolean",
+                        "example": false
                     },
                     "created_at": {
-                        "description": "Creation timestamp",
+                        "description": "Creation timestamp in ISO format",
                         "type": "string",
-                        "format": "date-time"
+                        "format": "date-time",
+                        "example": "2024-06-01T12:00:00.000Z"
                     },
                     "updated_at": {
-                        "description": "Last update timestamp",
+                        "description": "Last update timestamp in ISO format",
                         "type": "string",
-                        "format": "date-time"
+                        "format": "date-time",
+                        "example": "2024-06-01T12:00:00.000Z"
+                    },
+                    "created_at_human": {
+                        "description": "Human-readable creation date",
+                        "type": "string",
+                        "example": "2 hours ago"
+                    },
+                    "updated_at_human": {
+                        "description": "Human-readable update date",
+                        "type": "string",
+                        "example": "1 hour ago"
                     }
                 },
                 "type": "object"

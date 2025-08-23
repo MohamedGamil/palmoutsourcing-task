@@ -16,37 +16,67 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(
  *         property="id",
  *         type="integer",
- *         description="Task ID"
+ *         description="Task ID",
+ *         example=1
  *     ),
  *     @OA\Property(
  *         property="title",
  *         type="string",
  *         maxLength=150,
- *         description="Task title"
+ *         description="Task title",
+ *         example="Complete project documentation"
  *     ),
  *     @OA\Property(
  *         property="description",
  *         type="string",
  *         nullable=true,
- *         description="Task description"
+ *         description="Task description",
+ *         example="Write comprehensive documentation for the project"
  *     ),
  *     @OA\Property(
  *         property="status",
  *         type="string",
  *         enum={"pending", "inProgress", "done"},
- *         description="Task status"
+ *         description="Task status",
+ *         example="pending"
+ *     ),
+ *     @OA\Property(
+ *         property="status_label",
+ *         type="string",
+ *         description="Human-readable status label",
+ *         example="Pending"
+ *     ),
+ *     @OA\Property(
+ *         property="is_done",
+ *         type="boolean",
+ *         description="Whether the task is completed",
+ *         example=false
  *     ),
  *     @OA\Property(
  *         property="created_at",
  *         type="string",
  *         format="date-time",
- *         description="Creation timestamp"
+ *         description="Creation timestamp in ISO format",
+ *         example="2024-06-01T12:00:00.000Z"
  *     ),
  *     @OA\Property(
  *         property="updated_at",
  *         type="string",
  *         format="date-time",
- *         description="Last update timestamp"
+ *         description="Last update timestamp in ISO format",
+ *         example="2024-06-01T12:00:00.000Z"
+ *     ),
+ *     @OA\Property(
+ *         property="created_at_human",
+ *         type="string",
+ *         description="Human-readable creation date",
+ *         example="2 hours ago"
+ *     ),
+ *     @OA\Property(
+ *         property="updated_at_human",
+ *         type="string",
+ *         description="Human-readable update date",
+ *         example="1 hour ago"
  *     )
  * )
  */

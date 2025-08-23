@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
+use App\Http\Resources\Task as TaskResource;
 use App\Models\Task;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use OpenApi\Annotations as OA;
 
 /**
@@ -75,7 +77,7 @@ class TaskController extends Controller
      *     )
      * )
      */
-    public function index(Request $request): JsonResponse
+    public function index(Request $request): AnonymousResourceCollection
     {
         $query = Task::query();
 
@@ -106,15 +108,8 @@ class TaskController extends Controller
         $perPage = min($perPage, config('api.max_per_page', 100));
         $tasks = $query->paginate($perPage);
 
-        return response()->json([
+        return TaskResource::collection($tasks)->additional([
             'message' => 'Tasks retrieved successfully',
-            'data' => $tasks->items(),
-            'meta' => [
-                'current_page' => $tasks->currentPage(),
-                'last_page' => $tasks->lastPage(),
-                'per_page' => $tasks->perPage(),
-                'total' => $tasks->total(),
-            ],
         ]);
     }
 
@@ -159,7 +154,7 @@ class TaskController extends Controller
 
         return response()->json([
             'message' => 'Task created successfully',
-            'data' => $task,
+            'data' => new TaskResource($task),
         ], 201);
     }
 
@@ -193,7 +188,8 @@ class TaskController extends Controller
     public function show(Task $task): JsonResponse
     {
         return response()->json([
-            'data' => $task,
+            'message' => 'Task retrieved successfully',
+            'data' => new TaskResource($task),
         ]);
     }
 
@@ -243,7 +239,7 @@ class TaskController extends Controller
 
         return response()->json([
             'message' => 'Task updated successfully',
-            'data' => $task->fresh(),
+            'data' => new TaskResource($task->fresh()),
         ]);
     }
 
