@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Responses\ApiStdResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use OpenApi\Annotations as OA;
@@ -42,9 +43,10 @@ class UserController extends Controller
      */
     public function me(Request $request): JsonResponse
     {
-        return response()->json([
-            'data' => $request->user(),
-        ]);
+        return ApiStdResponse::successResponse(
+            $request->user(),
+            'User information retrieved successfully'
+        );
     }
 
     /**
@@ -79,15 +81,13 @@ class UserController extends Controller
     {
         $user = $request->user();
         
-        return response()->json([
-            'data' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'email_verified_at' => $user->email_verified_at,
-                'created_at' => $user->created_at,
-                'updated_at' => $user->updated_at,
-            ],
-        ]);
+        return ApiStdResponse::successResponse([
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'email_verified_at' => $user->email_verified_at,
+            'created_at' => $user->created_at,
+            'updated_at' => $user->updated_at,
+        ], 'User profile retrieved successfully');
     }
 }

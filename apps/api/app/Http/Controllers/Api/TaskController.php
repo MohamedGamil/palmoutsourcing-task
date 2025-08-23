@@ -7,6 +7,7 @@ use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Http\Resources\Task as TaskResource;
 use App\Models\Task;
+use App\Http\Responses\ApiStdResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -173,10 +174,11 @@ class TaskController extends Controller
     {
         $task = Task::create($request->validated());
 
-        return response()->json([
-            'message' => 'Task created successfully',
-            'data' => new TaskResource($task),
-        ], 201);
+        return ApiStdResponse::successResponse(
+            new TaskResource($task),
+            'Task created successfully',
+            201
+        );
     }
 
     /**
@@ -208,10 +210,10 @@ class TaskController extends Controller
      */
     public function show(Task $task): JsonResponse
     {
-        return response()->json([
-            'message' => 'Task retrieved successfully',
-            'data' => new TaskResource($task),
-        ]);
+        return ApiStdResponse::successResponse(
+            new TaskResource($task),
+            'Task retrieved successfully'
+        );
     }
 
     /**
@@ -258,10 +260,10 @@ class TaskController extends Controller
     {
         $task->update($request->validated());
 
-        return response()->json([
-            'message' => 'Task updated successfully',
-            'data' => new TaskResource($task->fresh()),
-        ]);
+        return ApiStdResponse::successResponse(
+            new TaskResource($task->fresh()),
+            'Task updated successfully'
+        );
     }
 
     /**
@@ -295,8 +297,9 @@ class TaskController extends Controller
     {
         $task->delete();
 
-        return response()->json([
-            'message' => 'Task deleted successfully',
-        ]);
+        return ApiStdResponse::successResponse(
+            null,
+            'Task deleted successfully'
+        );
     }
 }

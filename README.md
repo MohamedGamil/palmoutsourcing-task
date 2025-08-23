@@ -146,6 +146,7 @@ make swagger   # rebuild docs
 
 * **Database Choice**: Detailed in the following document: [`docs/db-choice.md`](https://github.com/MohamedGamil/palmoutsourcing-task/blob/main/docs/db-choice.md).
 * **SRS**: Detailed in the following document: [`docs/srs.md`](https://github.com/MohamedGamil/palmoutsourcing-task/blob/main/docs/srs.md).
+* **API Error Handling**: Detailed in the following document: [`docs/api-error-handling.md`](https://github.com/MohamedGamil/palmoutsourcing-task/blob/main/docs/api-error-handling.md).
 * **Notes**:
     - **Persistence**: Postgres data is stored under `./data/sail-pgsql/` (ignored by git, except for `.gitkeep`).
     - **CORS**: Configured in Laravel to allow `http://localhost:3001` (Next.js).
