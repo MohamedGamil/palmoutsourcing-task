@@ -171,15 +171,61 @@ make swagger   # rebuild docs
 
 ## 🔨 Trade-offs & Potential Improvements
 
-* CI/CD pipelines implementation.
-* Implementing authentication endpoints.
-* Further applying SOLID principles and refactoring project structure into database centric clean architecture for future proofing project's implementation.
-* Refactoring tasks CRUD operations to be handled within the application layer, implemented by controllers in the infrastructure layer, both layers depending on a domain layer for abstract definitions of business logic.
-* Utilizing tRPC through a proxy app that calls laravel RESTful API returning data to the front-end as a client in order to validate schema changes.
-* Refactoring front-end code into more organized types and interfaces to isolate business logic.
-* Refactoring front-end code using react query with implemented hooks, in addition to better state management implementation to handle singular and bulk changes to tasks without blocking users from making asynchronous changes to multiple tasks, allowing for better user experience.
-* Implementing a better user interface -similar to Google's Keep- in order to allow for better tasks management in real-time and enabling re-order of tasks.
-* Enabling secure private or public sharing of tasks with friends or anonymous users.
+1. **CI/CD**
+
+   * Currently manual; introducing pipelines for build, test, and deploy would improve reliability and automation.
+
+2. **Authentication**
+
+   * Basic scaffolding exists, but implementing robust authentication endpoints and flows (login, register, token refresh, role-based access) is still needed.
+
+3. **Architecture & Code Quality**
+
+   * Project could benefit from deeper application of **SOLID principles**.
+   * Refactor into a **clean architecture**:
+
+     * **Domain layer** → abstract business logic.
+     * **Application layer** → handle use cases (e.g., tasks CRUD).
+     * **Infrastructure layer** → controllers, persistence, frameworks.
+
+4. **API & Schema Evolution & Frontend DevEx**
+
+   * API client codegen from OpenAPI, React Query/TanStack with Zod validation, MSW for offline mocks, Storybook, Vercel for preview deploys, Bundle analysis, i18n, accessibility linting.
+
+5. **Frontend Improvements**
+
+   * Refactor into **well-typed interfaces and types** to isolate business logic.
+   * Use **React Query + custom hooks** for data fetching and cache management.
+   * Improve **state management** to support concurrent updates (bulk edits, async changes) without blocking the user.
+
+6. **User Experience**
+
+   * Upgrade UI to a **Google Keep–like interface** for real-time task management, drag-and-drop reordering, and smoother workflows.
+   * Add **secure sharing options**: public/anonymous or private task sharing with fine-grained permissions.
+
+7. **Sail vs Prod Images**
+
+   * Create slim prod Dockerfiles (multi‑stage, opcache preloading, no dev tools), run behind nginx/Traefik/Caddy with HTTP/2 + TLS; add healthchecks and non‑root users.
+
+8. **Database & Data Layer**
+
+   * Add connection pooling (PgBouncer), read replicas, schema validation (pgTAP), seed strategies per env, migrate on startup with gating/lock, temporal tables or auditing, logical backups + PITR; integrate Prisma (for web) or OpenAPI clients to avoid drift.
+
+9. **Observability**
+
+   * Add structured logging (Monolog JSON) to stdout, request IDs, Sentry/Bugsnag; metrics (Prometheus + Grafana), OpenTelemetry traces (HTTP + DB + queue), health endpoints & readiness checks.
+
+10. **Caching & Performance**
+
+   * Add Redis for cache/queues/rate‑limits, response caching (ETag, 304), HTTP caching for Next static routes, Octane (RoadRunner/Swoole) for API throughput, tuned OPcache & preloading, DB indexes review.
+
+11. **Testing Strategy**
+
+   * Pest/PHPUnit with feature tests + API contract tests; Playwright for web E2E; smoke tests CI step post‑deploy; test containers for PG/Redis; fixture factories and snapshot tests for OpenAPI docs.
+
+12. **API Gateway**
+
+   * Introduce reverse proxy (Traefik/Caddy) with Let’s Encrypt, rate‑limit, WAF rules, unified access logs.
 
 ---
 
