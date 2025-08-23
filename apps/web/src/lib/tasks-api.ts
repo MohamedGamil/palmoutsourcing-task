@@ -180,6 +180,7 @@ export const taskService = {
   ): Promise<{ tasks?: Task[]; meta?: TaskListResponse['meta']; error?: string }> {
     try {
       const response = await taskAPI.list(params);
+
       if (response.success) {
         return { 
           tasks: response.data.data, 

@@ -66,6 +66,7 @@ export default function TasksPage() {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleRefresh = () => {
@@ -120,9 +121,9 @@ export default function TasksPage() {
   const handleToggleStatus = async (task: Task) => {
     try {
       setError(null);
-      const newStatus = task.status === 'done' ? 'pending' : 'done';
+      const newStatus = task.status === 'done' ? 'pending' : (task.status === 'inProgress' ? 'done' : 'inProgress');
       const { error: updateError } = await taskService.updateTask(task.id, { status: newStatus });
-      
+
       if (updateError) {
         setError(updateError);
       } else {
@@ -333,7 +334,7 @@ export default function TasksPage() {
         ) : (
           <div className="space-y-4">
             {tasks.map((task) => (
-              <div key={task.id} className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+              <div key={task.id} className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border-1 border-gray-100 dark:border-transparent hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 <div className="px-6 py-4">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -351,11 +352,11 @@ export default function TasksPage() {
                       <div className="mt-3 flex items-center text-sm text-gray-500 dark:text-gray-400 ml-8">
                         <span title={formatDate(task.created_at)}>Created: {task.created_at_human}</span>
                         {task.updated_at !== task.created_at && (
-                          <span className="ml-4">Updated: {formatDate(task.updated_at)}</span>
+                          <span className="ml-4" title={formatDate(task.updated_at)}>Updated: {task.updated_at_human}</span>
                         )}
                       </div>
                     </div>
-                    <div className="ml-4 flex flex-col items-end space-y-2">
+                    <div className="ml-4 flex flex-col items-end space-y-4">
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${getStatusColor(
                           task.status
@@ -363,17 +364,17 @@ export default function TasksPage() {
                       >
                         {task.status_label}
                       </span>
-                      <div className="flex space-x-2">
+                      <div className="flex space-x-3 pt-1">
                         <button
                           onClick={() => handleToggleStatus(task)}
-                          className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium"
+                          className="cursor-pointer text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium"
                           title={task.status === 'done' ? 'Mark as pending' : 'Mark as done'}
                         >
-                          {task.status === 'done' ? 'Undo' : 'Complete'}
+                          {task.status === 'done' ? 'Undo' : (task.status === 'inProgress' ? 'Complete' : 'Start task' )}
                         </button>
                         <button
                           onClick={() => handleDeleteTask(task.id)}
-                          className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 text-sm font-medium"
+                          className="cursor-pointer text-red-500 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 text-sm font-medium"
                         >
                           Delete
                         </button>
@@ -439,7 +440,7 @@ export default function TasksPage() {
                     } else {
                       pageNumber = currentPage - 2 + i;
                     }
-                    
+
                     return (
                       <button
                         key={pageNumber}
@@ -454,7 +455,7 @@ export default function TasksPage() {
                       </button>
                     );
                   })}
-                  
+
                   <button
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === pagination.last_page}

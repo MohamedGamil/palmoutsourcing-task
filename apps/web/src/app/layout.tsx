@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Poppins, Geist_Mono } from "next/font/google";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import CSRFProvider from "@/components/CSRFProvider";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -30,11 +31,13 @@ export default function RootLayout({
       <body
         className={`${poppins.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
-        <Navigation />
-        <main className="flex-1">
-          {children}
-        </main>
-        <Footer />
+        <CSRFProvider>
+          <Navigation />
+          <main className="flex-1">
+            {children}
+          </main>
+          <Footer />
+        </CSRFProvider>
       </body>
     </html>
   );

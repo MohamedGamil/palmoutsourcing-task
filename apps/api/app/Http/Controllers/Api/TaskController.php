@@ -100,7 +100,7 @@ class TaskController extends Controller
      *     )
      * )
      */
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(Request $request): JsonResponse|AnonymousResourceCollection
     {
         $query = Task::query();
 
@@ -121,7 +121,9 @@ class TaskController extends Controller
         // Sort by created_at (newest first by default)
         $sortBy = $request->get('sort_by', 'created_at');
         $sortDir = $request->get('sort_dir', 'desc');
-        $query->orderBy($sortBy, $sortDir);
+        $query->orderBy($sortBy, $sortDir)
+            // ->orderBy('updated_at', $sortDir)
+            ->orderBy('id', $sortDir);
 
         $perPage = (int) $request->get(
             'per_page', 
@@ -131,10 +133,22 @@ class TaskController extends Controller
         $perPage = min($perPage, config('api.max_per_page', 100));
         $tasks = $query->paginate($perPage);
 
-        return TaskResource::collection($tasks)->additional([
-            'success' => true,
-            'message' => 'Tasks retrieved successfully',
-        ]);
+        return ApiStdResponse::successResponse(
+            [
+                'data' => TaskResource::collection($tasks),
+                'meta' => [
+                    'current_page' => $tasks->currentPage(),
+                    'from' => $tasks->firstItem(),
+                    'last_page' => $tasks->lastPage(),
+                    'links' => $tasks->linkCollection()->toArray(),
+                    'path' => $tasks->path(),
+                    'per_page' => $tasks->perPage(),
+                    'to' => $tasks->lastItem(),
+                    'total' => $tasks->total(),
+                ],
+            ],
+            'Tasks retrieved successfully'
+        );
     }
 
     /**
