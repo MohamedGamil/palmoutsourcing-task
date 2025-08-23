@@ -1,34 +1,14 @@
 <?php
 
 use App\Http\Controllers\Api\TaskController;
+use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-/**
- * @OA\Get(
- *     path="/user",
- *     summary="Get authenticated user",
- *     description="Returns the authenticated user's information.",
- *     tags={"User"},
- *     security={{"sanctum":{}}},
- *     @OA\Response(
- *         response=200,
- *         description="Authenticated user data",
- *         @OA\JsonContent(
- *             type="object",
- *             @OA\Property(property="id", type="integer"),
- *             @OA\Property(property="name", type="string"),
- *             @OA\Property(property="email", type="string")
- *         )
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthenticated"
- *     )
- * )
- */
-Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
-    return $request->user();
+// User routes (authenticated)
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/user', [UserController::class, 'me']);
+    Route::get('/user/profile', [UserController::class, 'profile']);
 });
 
 // Task API routes
