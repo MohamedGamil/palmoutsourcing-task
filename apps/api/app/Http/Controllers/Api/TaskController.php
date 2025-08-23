@@ -94,6 +94,7 @@ class TaskController extends Controller
      *                 @OA\Property(property="to", type="integer", example=15),
      *                 @OA\Property(property="total", type="integer", example=16)
      *             ),
+     *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Tasks retrieved successfully")
      *         )
      *     )
@@ -131,6 +132,7 @@ class TaskController extends Controller
         $tasks = $query->paginate($perPage);
 
         return TaskResource::collection($tasks)->additional([
+            'success' => true,
             'message' => 'Tasks retrieved successfully',
         ]);
     }

@@ -1,20 +1,23 @@
 'use client';
 
 import { useState } from 'react';
+import { withCSRF } from './CSRFProvider';
+import { taskService, TaskCreateData, Task } from '@/lib/tasks-api';
 
 interface AddTaskFormProps {
-  onSubmit: (taskData: { title: string; description: string; status: string }) => Promise<void>;
+  onSubmit: (task: Task) => void; // Called with the created task
   onCancel: () => void;
-  isSubmitting: boolean;
+  onError?: (error: string) => void; // Called when there's an error
 }
 
-export default function AddTaskForm({ onSubmit, onCancel, isSubmitting }: AddTaskFormProps) {
+export function AddTaskForm({ onSubmit, onCancel, onError }: AddTaskFormProps) {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    status: 'pending'
+    status: 'pending' as TaskCreateData['status']
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +40,27 @@ export default function AddTaskForm({ onSubmit, onCancel, isSubmitting }: AddTas
     setErrors(newErrors);
     
     if (Object.keys(newErrors).length === 0) {
-      await onSubmit(formData);
+      setIsSubmitting(true);
+      
+      const taskData: TaskCreateData = {
+        title: formData.title.trim(),
+        description: formData.description.trim() || undefined,
+        status: formData.status
+      };
+      
+      const { task, error } = await taskService.createTask(taskData);
+      
+      if (error) {
+        setIsSubmitting(false);
+        if (onError) {
+          onError(error);
+        } else {
+          setErrors({ submit: error });
+        }
+      } else if (task) {
+        setIsSubmitting(false);
+        onSubmit(task);
+      }
     }
   };
 
@@ -53,6 +76,14 @@ export default function AddTaskForm({ onSubmit, onCancel, isSubmitting }: AddTas
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {errors.submit && (
+        <div className="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-md p-3">
+          <div className="text-sm text-red-700 dark:text-red-300">
+            {errors.submit}
+          </div>
+        </div>
+      )}
+
       <div>
         <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           Title <span className="text-red-500">*</span>
@@ -146,4 +177,8 @@ export default function AddTaskForm({ onSubmit, onCancel, isSubmitting }: AddTas
       </div>
     </form>
   );
+}
+
+export default function AddTaskFormWithCSRF(props: AddTaskFormProps) {
+  return withCSRF(AddTaskForm)(props);
 }

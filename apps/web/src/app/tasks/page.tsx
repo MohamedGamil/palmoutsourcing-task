@@ -4,32 +4,15 @@ import PageTitle from '@/components/PageTitle';
 import Modal from '@/components/Modal';
 import AddTaskForm from '@/components/AddTaskForm';
 import { useState, useEffect } from 'react';
-
-interface Task {
-  id: number;
-  title: string;
-  description: string;
-  status: 'pending' | 'done' | 'inProgress';
-  status_label: 'Pending' | 'Done' | 'In Progress';
-  created_at: string;
-  updated_at: string;
-  created_at_human: string;
-  updated_at_human: string;
-}
+import { taskService, Task, TaskQueryParams } from '@/lib/tasks-api';
 
 interface PaginationMeta {
   current_page: number;
-  from: number;
+  from?: number;
   last_page: number;
   per_page: number;
-  to: number;
+  to?: number;
   total: number;
-}
-
-interface TasksResponse {
-  data: Task[];
-  meta: PaginationMeta;
-  message: string;
 }
 
 type StatusFilter = 'all' | 'pending' | 'done' | 'inProgress';
@@ -43,33 +26,32 @@ export default function TasksPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081';
 
   const fetchTasks = async (page: number = 1, status?: string) => {
     try {
       setLoading(true);
       setError(null);
       
-      const params = new URLSearchParams({
-        page: page.toString(),
-        per_page: perPage.toString(),
-      });
+      const params: TaskQueryParams = {
+        page,
+        per_page: perPage,
+      };
 
       if (status && status !== 'all') {
-        params.append('status', status);
+        params.status = status as 'pending' | 'inProgress' | 'done';
       }
       
-      const response = await fetch(`${apiUrl}/api/tasks?${params}`);
+      const { tasks: taskList, meta, error: fetchError } = await taskService.fetchTasks(params);
       
-      if (!response.ok) {
-        throw new Error(`Failed to fetch tasks: ${response.statusText}`);
+      if (fetchError) {
+        throw new Error(fetchError);
       }
       
-      const data: TasksResponse = await response.json();
-      setTasks(data.data || []);
-      setPagination(data.meta);
-    } catch (err) {
+      setTasks(taskList || []);
+      if (meta) {
+        setPagination(meta);
+      }
+    } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'An error occurred while fetching tasks');
       console.error('Error fetching tasks:', err);
     } finally {
@@ -96,40 +78,60 @@ export default function TasksPage() {
     fetchTasks(1, filter); // Fetch immediately with new per_page value
   };
 
-  const createTask = async (taskData: { title: string; description: string; status: string }) => {
+  const handleTaskCreated = (task: Task) => {
+    // Close modal
+    setIsAddModalOpen(false);
+    
+    // If we're on the first page and showing all tasks or the same status, refresh current page
+    // Otherwise, go to first page to see the new task
+    if (currentPage === 1 && (filter === 'all' || filter === task.status)) {
+      fetchTasks(1, filter);
+    } else {
+      setCurrentPage(1);
+      setFilter(task.status as StatusFilter);
+    }
+  };
+
+  const handleTaskError = (error: string) => {
+    setError(error);
+  };
+
+  const handleDeleteTask = async (taskId: number) => {
+    if (!confirm('Are you sure you want to delete this task?')) {
+      return;
+    }
+
     try {
-      setIsCreating(true);
       setError(null);
+      const { error: deleteError } = await taskService.deleteTask(taskId);
       
-      const response = await fetch(`${apiUrl}/api/tasks`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(taskData),
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create task');
-      }
-      
-      // Close modal and refresh tasks
-      setIsAddModalOpen(false);
-      
-      // If we're on the first page and showing all tasks or the same status, refresh current page
-      // Otherwise, go to first page to see the new task
-      if (currentPage === 1 && (filter === 'all' || filter === taskData.status)) {
-        await fetchTasks(1, filter);
+      if (deleteError) {
+        setError(deleteError);
       } else {
-        setCurrentPage(1);
-        setFilter(taskData.status as StatusFilter);
+        // Refresh current page
+        await fetchTasks(currentPage, filter);
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred while creating the task');
-      console.error('Error creating task:', err);
-    } finally {
-      setIsCreating(false);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'An error occurred while deleting the task');
+      console.error('Error deleting task:', err);
+    }
+  };
+
+  const handleToggleStatus = async (task: Task) => {
+    try {
+      setError(null);
+      const newStatus = task.status === 'done' ? 'pending' : 'done';
+      const { error: updateError } = await taskService.updateTask(task.id, { status: newStatus });
+      
+      if (updateError) {
+        setError(updateError);
+      } else {
+        // Refresh current page
+        await fetchTasks(currentPage, filter);
+      }
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'An error occurred while updating the task');
+      console.error('Error updating task:', err);
     }
   };
 
@@ -353,7 +355,7 @@ export default function TasksPage() {
                         )}
                       </div>
                     </div>
-                    <div className="ml-4 flex-shrink-0">
+                    <div className="ml-4 flex flex-col items-end space-y-2">
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${getStatusColor(
                           task.status
@@ -361,6 +363,21 @@ export default function TasksPage() {
                       >
                         {task.status_label}
                       </span>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleToggleStatus(task)}
+                          className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium"
+                          title={task.status === 'done' ? 'Mark as pending' : 'Mark as done'}
+                        >
+                          {task.status === 'done' ? 'Undo' : 'Complete'}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteTask(task.id)}
+                          className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 text-sm font-medium"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -458,9 +475,9 @@ export default function TasksPage() {
       {/* Add Task Modal */}
       <Modal isOpen={isAddModalOpen} onClose={handleCloseAddModal} title="Add New Task">
         <AddTaskForm
-          onSubmit={createTask}
+          onSubmit={handleTaskCreated}
           onCancel={handleCloseAddModal}
-          isSubmitting={isCreating}
+          onError={handleTaskError}
         />
       </Modal>
     </div>
