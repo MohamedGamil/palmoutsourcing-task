@@ -5,7 +5,51 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use OpenApi\Annotations as OA;
 
+/**
+ * @OA\Schema(
+ *     schema="Task",
+ *     type="object",
+ *     title="Task",
+ *     description="Task model",
+ *     @OA\Property(
+ *         property="id",
+ *         type="integer",
+ *         description="Task ID"
+ *     ),
+ *     @OA\Property(
+ *         property="title",
+ *         type="string",
+ *         maxLength=150,
+ *         description="Task title"
+ *     ),
+ *     @OA\Property(
+ *         property="description",
+ *         type="string",
+ *         nullable=true,
+ *         description="Task description"
+ *     ),
+ *     @OA\Property(
+ *         property="status",
+ *         type="string",
+ *         enum={"pending", "inProgress", "done"},
+ *         description="Task status"
+ *     ),
+ *     @OA\Property(
+ *         property="created_at",
+ *         type="string",
+ *         format="date-time",
+ *         description="Creation timestamp"
+ *     ),
+ *     @OA\Property(
+ *         property="updated_at",
+ *         type="string",
+ *         format="date-time",
+ *         description="Last update timestamp"
+ *     )
+ * )
+ */
 class Task extends Model
 {
     use HasFactory;

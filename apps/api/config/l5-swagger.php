@@ -5,14 +5,14 @@ return [
     'documentations' => [
         'default' => [
             'api' => [
-                'title' => 'L5 Swagger UI',
+                'title' => 'PalmOutsourcing Task API',
             ],
 
             'routes' => [
                 /*
                  * Route for accessing api documentation interface
                  */
-                'api' => 'api/documentation',
+                'api' => 'api/docs',
             ],
             'paths' => [
                 /*
@@ -44,7 +44,11 @@ return [
                  * Absolute paths to directory containing the swagger annotations are stored.
                  */
                 'annotations' => [
-                    base_path('app'),
+                    // base_path('app'),
+                    base_path('app/Swagger'),
+                    base_path('app/Models'),
+                    base_path('app/Http/Controllers'),
+                    base_path('routes'),
                 ],
             ],
         ],
@@ -274,7 +278,7 @@ return [
          */
         'ui' => [
             'display' => [
-                'dark_mode' => env('L5_SWAGGER_UI_DARK_MODE', false),
+                'dark_mode' => env('L5_SWAGGER_UI_DARK_MODE', true),
                 /*
                  * Controls the default expansion setting for the operations and tags. It can be :
                  * 'list' (expands only the tags),
@@ -312,7 +316,7 @@ return [
          * Constants which can be used in annotations
          */
         'constants' => [
-            'L5_SWAGGER_CONST_HOST' => env('L5_SWAGGER_CONST_HOST', 'http://my-default-host.com'),
+            'L5_SWAGGER_CONST_HOST' => env('L5_SWAGGER_CONST_HOST', 'http://localhost:8081'),
         ],
     ],
 ];
