@@ -37,11 +37,11 @@ export default function TasksPage() {
   const [filter, setFilter] = useState<'all' | 'pending' | 'done' | 'inProgress'>('all');
   const [pagination, setPagination] = useState<PaginationMeta | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [perPage, setPerPage] = useState(15);
+  const [perPage, setPerPage] = useState(10);
 
   useEffect(() => {
     fetchTasks(currentPage, filter);
-  }, [currentPage, filter]);
+  }, [currentPage, filter, perPage]);
 
   const fetchTasks = async (page: number = 1, status?: string) => {
     try {
@@ -53,7 +53,7 @@ export default function TasksPage() {
         page: page.toString(),
         per_page: perPage.toString(),
       });
-      
+
       if (status && status !== 'all') {
         params.append('status', status);
       }
@@ -86,6 +86,12 @@ export default function TasksPage() {
 
   const handleRefresh = () => {
     fetchTasks(currentPage, filter);
+  };
+
+  const handlePerPageChange = (newPerPage: number) => {
+    setPerPage(newPerPage);
+    setCurrentPage(1); // Reset to first page when changing items per page
+    fetchTasks(1, filter); // Fetch immediately with new per_page value
   };
 
   const getStatusColor = (status: string) => {
@@ -159,30 +165,49 @@ export default function TasksPage() {
         {/* Header */}
         {PageTitleSection}
 
-        {/* Filter Buttons */}
-        <div className="mb-6 flex flex-wrap gap-2">
-          {(['all', 'pending', 'inProgress', 'done'] as const).map((status) => (
-            <button
-              key={status}
-              onClick={() => handleFilterChange(status)}
-              className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors cursor-pointer ${
-                filter === status
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
-              }`}
+        {/* Filter Buttons and Per Page Selector */}
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex flex-wrap gap-2">
+            {(['all', 'pending', 'inProgress', 'done'] as const).map((status) => (
+              <button
+                key={status}
+                onClick={() => handleFilterChange(status)}
+                className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors cursor-pointer ${
+                  filter === status
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
+                }`}
+              >
+                {status === 'all' ? 'All Tasks' : 
+                 status === 'inProgress' ? 'In Progress' :
+                 status.charAt(0).toUpperCase() + status.slice(1)}
+              </button>
+            ))}
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <label htmlFor="per-page" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Show:
+            </label>
+            <select
+              id="per-page"
+              value={perPage}
+              onChange={(e) => handlePerPageChange(Number(e.target.value))}
+              className="block px-3 py-2 border border-gray-300 rounded-md text-sm font-medium bg-white text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700 dark:focus:ring-blue-400"
             >
-              {status === 'all' ? 'All Tasks' : 
-               status === 'inProgress' ? 'In Progress' :
-               status.charAt(0).toUpperCase() + status.slice(1)}
-            </button>
-          ))}
+              <option value={10}>10 per page</option>
+              <option value={25}>25 per page</option>
+              <option value={50}>50 per page</option>
+              <option value={100}>100 per page</option>
+            </select>
+          </div>
         </div>
 
         {/* Pagination Info and Refresh Button */}
         <div className="mb-6 flex justify-between items-center">
           <div className="text-sm text-gray-500 dark:text-gray-400">
             {pagination ? (
-              <>Showing {pagination.from} to {pagination.to} of {pagination.total} tasks</>
+              <>Page {pagination.current_page} of {pagination.last_page} pages - Showing {pagination.per_page} tasks per page</>
             ) : (
               <>Showing {tasks.length} tasks</>
             )}

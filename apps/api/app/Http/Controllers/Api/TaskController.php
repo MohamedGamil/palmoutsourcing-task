@@ -59,7 +59,7 @@ class TaskController extends Controller
      *         in="query",
      *         description="Items per page",
      *         required=false,
-     *         @OA\Schema(type="integer", default=15)
+     *         @OA\Schema(type="integer", default=10)
      *     ),
      *     @OA\Response(
      *         response=200,
@@ -123,7 +123,7 @@ class TaskController extends Controller
 
         $perPage = (int) $request->get(
             'per_page', 
-            config('api.default_per_page', 15)
+            config('api.default_per_page', 10)
         );
 
         $perPage = min($perPage, config('api.max_per_page', 100));

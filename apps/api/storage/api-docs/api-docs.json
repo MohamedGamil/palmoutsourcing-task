@@ -75,7 +75,7 @@
                         "required": false,
                         "schema": {
                             "type": "integer",
-                            "default": 15
+                            "default": 10
                         }
                     }
                 ],
