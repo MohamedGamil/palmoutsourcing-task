@@ -171,12 +171,12 @@ make swagger   # rebuild docs
 
 ## 🔨 Trade-offs & Potential Improvements
 
-* CI/CD pipelines implementation
-* Implementing authentication endpoints
-* Further applying SOLID principles and refactoring project structure into database centric clean architecture for future proofing project's implementation
-* Refactoring tasks CRUD operations to be handled within the application layer, implemented by controllers in the infrastructure layer, both layers depending on a domain layer for abstract definitions of business logic
-* Utilizing tRPC through a proxy app that calls laravel RESTful API returning data to the front-end as a client in order to validate schema changes
-* Refactoring front-end code into more organized types and interfaces to isolate business logic
+* CI/CD pipelines implementation.
+* Implementing authentication endpoints.
+* Further applying SOLID principles and refactoring project structure into database centric clean architecture for future proofing project's implementation.
+* Refactoring tasks CRUD operations to be handled within the application layer, implemented by controllers in the infrastructure layer, both layers depending on a domain layer for abstract definitions of business logic.
+* Utilizing tRPC through a proxy app that calls laravel RESTful API returning data to the front-end as a client in order to validate schema changes.
+* Refactoring front-end code into more organized types and interfaces to isolate business logic.
 * Refactoring front-end code using hooks and a better state management implementation to handle singular and bulk changes to tasks without blocking users from making asynchronous changes to multiple tasks, allowing for better user experience.
 * Implementing a better user interface -similar to Google's Keep- in order to allow for better tasks management in real-time and enabling re-order of tasks.
 * Enabling secure private or public sharing of tasks with friends or anonymous users.
