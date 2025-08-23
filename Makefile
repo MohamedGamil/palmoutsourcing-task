@@ -1,6 +1,11 @@
 SHELL := /bin/bash
 DC := docker compose
 
+# Point Sail at the root compose file & project so it "execs" into the
+# laravel service managed by the root docker-compose.yml.
+SAIL_DIR := apps/api
+SAIL_CMD := cd $(SAIL_DIR) && SAIL_FILES=../../docker-compose.yml SAIL_PROJECT=palmoutsourcing-task ./vendor/bin/sail
+
 .PHONY: up down ps logs install migrate fresh seed tinker swagger api-composer api-artisan api-sh web-install web-sh reset-db clean prune
 
 
@@ -29,22 +34,22 @@ clean: down
 
 ## One command to set up everything for local dev:
 ## - builds & starts containers
-## - installs PHP deps (Laravel)
+## - installs PHP deps (Laravel) via Sail
 ## - generates app key & storage link
 ## - runs migrations (+ optional seed)
 ## - generates Swagger docs
 ## - installs Node deps for Next.js
 install: up
-	# Ensure API dependencies are installed
-	$(DC) exec laravel.test composer install --no-interaction --prefer-dist
+	# Ensure API dependencies are installed (Composer via Sail)
+	$(SAIL_CMD) composer install --no-interaction --prefer-dist
 	# App key + storage symlink
-	$(DC) exec laravel.test php artisan key:generate --force
-	$(DC) exec laravel.test php artisan storage:link || true
+	$(SAIL_CMD) artisan key:generate --force
+	$(SAIL_CMD) artisan storage:link || true
 	# Database migrations (uncomment seed if needed)
-	$(DC) exec laravel.test php artisan migrate --force
-	# $(DC) exec laravel.test php artisan db:seed --force
+	$(SAIL_CMD) artisan migrate --force
+	# $(SAIL_CMD) artisan db:seed --force
 	# Swagger docs
-	$(DC) exec laravel.test php artisan l5-swagger:generate
+	$(SAIL_CMD) artisan l5-swagger:generate
 	# Frontend dependencies
 	$(DC) run --rm web sh -c "npm ci || npm install"
 
@@ -52,34 +57,34 @@ install: up
 # --- DB helpers --------------------------------------------------------------
 
 migrate:
-	$(DC) exec laravel.test php artisan migrate --force
+	$(SAIL_CMD) artisan migrate --force
 
 fresh:
-	$(DC) exec laravel.test php artisan migrate:fresh --seed --force
+	$(SAIL_CMD) artisan migrate:fresh --seed --force
 
 seed:
-	$(DC) exec laravel.test php artisan db:seed --force
+	$(SAIL_CMD) artisan db:seed --force
 
 reset-db: ## Danger: drop + recreate
-	$(DC) exec laravel.test php artisan migrate:fresh --force
+	$(SAIL_CMD) artisan migrate:fresh --force
 
 
 # --- API helpers -------------------------------------------------------------
 
 swagger:
-	$(DC) exec laravel.test php artisan l5-swagger:generate
+	$(SAIL_CMD) artisan l5-swagger:generate
 
 tinker:
-	$(DC) exec laravel.test php artisan tinker
+	$(SAIL_CMD) artisan tinker
 
 api-composer:
-	$(DC) exec laravel.test composer $(c)
+	$(SAIL_CMD) composer $(c)
 
 api-artisan:
-	$(DC) exec laravel.test php artisan $(t)
+	$(SAIL_CMD) artisan $(t)
 
 api-sh:
-	$(DC) exec laravel.test bash
+	$(SAIL_CMD) bash
 
 
 # --- Web helpers -------------------------------------------------------------
