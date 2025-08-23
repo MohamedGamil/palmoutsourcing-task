@@ -1,6 +1,8 @@
 'use client';
 
 import PageTitle from '@/components/PageTitle';
+import Modal from '@/components/Modal';
+import AddTaskForm from '@/components/AddTaskForm';
 import { useState, useEffect } from 'react';
 
 interface Task {
@@ -38,6 +40,9 @@ export default function TasksPage() {
   const [pagination, setPagination] = useState<PaginationMeta | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081';
 
   useEffect(() => {
     fetchTasks(currentPage, filter);
@@ -48,7 +53,6 @@ export default function TasksPage() {
       setLoading(true);
       setError(null);
       
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081';
       const params = new URLSearchParams({
         page: page.toString(),
         per_page: perPage.toString(),
@@ -94,6 +98,53 @@ export default function TasksPage() {
     fetchTasks(1, filter); // Fetch immediately with new per_page value
   };
 
+  const createTask = async (taskData: { title: string; description: string; status: string }) => {
+    try {
+      setIsCreating(true);
+      setError(null);
+      
+      const response = await fetch(`${apiUrl}/api/tasks`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(taskData),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create task');
+      }
+      
+      // Close modal and refresh tasks
+      setIsAddModalOpen(false);
+      
+      // If we're on the first page and showing all tasks or the same status, refresh current page
+      // Otherwise, go to first page to see the new task
+      if (currentPage === 1 && (filter === 'all' || filter === taskData.status)) {
+        await fetchTasks(1, filter);
+      } else {
+        setCurrentPage(1);
+        setFilter(taskData.status as any);
+      }
+      
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred while creating the task');
+      console.error('Error creating task:', err);
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const handleOpenAddModal = () => {
+    setError(null);
+    setIsAddModalOpen(true);
+  };
+
+  const handleCloseAddModal = () => {
+    setIsAddModalOpen(false);
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'done':
@@ -135,7 +186,13 @@ export default function TasksPage() {
   };
 
   const PageTitleSection = (
-    <PageTitle title="Tasks" subtitle="Manage and track all your tasks in one place." />
+    <PageTitle
+      title="Tasks"
+      subtitle="Manage and track all your tasks in one place."
+      button
+      buttonText="Add Task"
+      buttonHandler={handleOpenAddModal}
+    />
   );
 
   if (loading) {
@@ -215,7 +272,7 @@ export default function TasksPage() {
           <button
             onClick={handleRefresh}
             disabled={loading}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-bold rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="cursor-pointer inline-flex items-center px-4 py-2 border border-transparent text-sm font-bold rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <>
@@ -333,9 +390,10 @@ export default function TasksPage() {
             <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm text-gray-700 dark:text-gray-300">
-                  Showing <span className="font-medium">{pagination.from}</span> to{' '}
-                  <span className="font-medium">{pagination.to}</span> of{' '}
-                  <span className="font-medium">{pagination.total}</span> results
+                  Page <span className="font-medium">{pagination.current_page}</span> of{' '}
+                  <span className="font-medium">{pagination.last_page}</span>
+                  {' '} - {' '}
+                  (<span className="font-medium">{pagination.total}</span> total results)
                 </p>
               </div>
               <div>
@@ -343,7 +401,7 @@ export default function TasksPage() {
                   <button
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1}
-                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700"
+                    className="cursor-pointer relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700"
                   >
                     <span className="sr-only">Previous</span>
                     <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -368,7 +426,7 @@ export default function TasksPage() {
                       <button
                         key={pageNumber}
                         onClick={() => handlePageChange(pageNumber)}
-                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                        className={`cursor-pointer relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
                           pageNumber === currentPage
                             ? 'z-10 bg-blue-50 border-blue-500 text-blue-600 dark:bg-blue-900 dark:border-blue-600 dark:text-blue-200'
                             : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700'
@@ -382,7 +440,7 @@ export default function TasksPage() {
                   <button
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === pagination.last_page}
-                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700"
+                    className="cursor-pointer relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700"
                   >
                     <span className="sr-only">Next</span>
                     <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -395,6 +453,15 @@ export default function TasksPage() {
           </div>
         )}
       </div>
+      
+      {/* Add Task Modal */}
+      <Modal isOpen={isAddModalOpen} onClose={handleCloseAddModal} title="Add New Task">
+        <AddTaskForm
+          onSubmit={createTask}
+          onCancel={handleCloseAddModal}
+          isSubmitting={isCreating}
+        />
+      </Modal>
     </div>
   );
 }

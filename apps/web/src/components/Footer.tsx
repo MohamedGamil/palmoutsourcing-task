@@ -5,7 +5,7 @@ export default function Footer() {
         <div className="flex flex-col items-center space-y-4 sm:flex-row sm:justify-between sm:space-y-0">
           <div className="flex items-center space-x-4">
             <p className="text-gray-500 dark:text-gray-400 text-sm">
-              © 2025 P.O. Task Manager. All rights reserved.
+              © 2025 Palms Outsourcing Task Manager. All rights reserved.
             </p>
           </div>
           <div className="flex space-x-6">
