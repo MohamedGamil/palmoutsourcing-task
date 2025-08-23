@@ -64,16 +64,37 @@ class TaskController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Task")),
-     *             @OA\Property(property="meta", type="object",
-     *                 @OA\Property(property="current_page", type="integer"),
-     *                 @OA\Property(property="last_page", type="integer"),
-     *                 @OA\Property(property="per_page", type="integer"),
-     *                 @OA\Property(property="total", type="integer")
-     *             )
-     *         )
+    *         @OA\JsonContent(
+    *             type="object",
+    *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Task")),
+    *             @OA\Property(property="links", type="object",
+    *                 @OA\Property(property="first", type="string", example="http://localhost:8081/api/tasks?page=1"),
+    *                 @OA\Property(property="last", type="string", example="http://localhost:8081/api/tasks?page=2"),
+    *                 @OA\Property(property="prev", type="string", nullable=true, example=null),
+    *                 @OA\Property(property="next", type="string", example="http://localhost:8081/api/tasks?page=2")
+    *             ),
+    *             @OA\Property(property="meta", type="object",
+    *                 @OA\Property(property="current_page", type="integer", example=1),
+    *                 @OA\Property(property="from", type="integer", example=1),
+    *                 @OA\Property(property="last_page", type="integer", example=2),
+    *                 @OA\Property(
+    *                     property="links",
+    *                     type="array",
+    *                     @OA\Items(
+    *                         type="object",
+    *                         @OA\Property(property="url", type="string", nullable=true, example=null),
+    *                         @OA\Property(property="label", type="string", example="&laquo; Previous"),
+    *                         @OA\Property(property="page", type="integer", nullable=true, example=null),
+    *                         @OA\Property(property="active", type="boolean", example=false)
+    *                     )
+    *                 ),
+    *                 @OA\Property(property="path", type="string", example="http://localhost:8081/api/tasks"),
+    *                 @OA\Property(property="per_page", type="integer", example=15),
+    *                 @OA\Property(property="to", type="integer", example=15),
+    *                 @OA\Property(property="total", type="integer", example=16)
+    *             ),
+    *             @OA\Property(property="message", type="string", example="Tasks retrieved successfully")
+    *         )
      *     )
      * )
      */
