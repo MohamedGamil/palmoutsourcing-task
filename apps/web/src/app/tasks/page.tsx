@@ -1,5 +1,6 @@
 'use client';
 
+import PageTitle from '@/components/PageTitle';
 import { useState, useEffect } from 'react';
 
 interface Task {
@@ -14,30 +15,58 @@ interface Task {
   updated_at_human: string;
 }
 
+interface PaginationMeta {
+  current_page: number;
+  from: number;
+  last_page: number;
+  per_page: number;
+  to: number;
+  total: number;
+}
+
+interface TasksResponse {
+  data: Task[];
+  meta: PaginationMeta;
+  message: string;
+}
+
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'pending' | 'done' | 'inProgress'>('all');
+  const [pagination, setPagination] = useState<PaginationMeta | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(15);
 
   useEffect(() => {
-    fetchTasks();
-  }, []);
+    fetchTasks(currentPage, filter);
+  }, [currentPage, filter]);
 
-  const fetchTasks = async () => {
+  const fetchTasks = async (page: number = 1, status?: string) => {
     try {
       setLoading(true);
       setError(null);
       
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081';
-      const response = await fetch(`${apiUrl}/api/tasks`);
+      const params = new URLSearchParams({
+        page: page.toString(),
+        per_page: perPage.toString(),
+      });
+      
+      if (status && status !== 'all') {
+        params.append('status', status);
+      }
+      
+      const response = await fetch(`${apiUrl}/api/tasks?${params}`);
       
       if (!response.ok) {
         throw new Error(`Failed to fetch tasks: ${response.statusText}`);
       }
       
-      const data = await response.json();
-      setTasks(data.data || data || []); // Handle different response formats
+      const data: TasksResponse = await response.json();
+      setTasks(data.data || []);
+      setPagination(data.meta);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred while fetching tasks');
       console.error('Error fetching tasks:', err);
@@ -46,10 +75,18 @@ export default function TasksPage() {
     }
   };
 
-  const filteredTasks = tasks.filter(task => {
-    if (filter === 'all') return true;
-    return task.status === filter;
-  });
+  const handleFilterChange = (newFilter: 'all' | 'pending' | 'done' | 'inProgress') => {
+    setFilter(newFilter);
+    setCurrentPage(1); // Reset to first page when filter changes
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleRefresh = () => {
+    fetchTasks(currentPage, filter);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -91,12 +128,16 @@ export default function TasksPage() {
     }
   };
 
+  const PageTitleSection = (
+    <PageTitle title="Tasks" subtitle="Manage and track all your tasks in one place." />
+  );
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded mb-4 w-1/4"></div>
+            {PageTitleSection}
             <div className="space-y-4">
               {[...Array(5)].map((_, i) => (
                 <div key={i} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
@@ -116,19 +157,14 @@ export default function TasksPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Tasks</h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-300">
-            Manage and track all your tasks in one place.
-          </p>
-        </div>
+        {PageTitleSection}
 
         {/* Filter Buttons */}
         <div className="mb-6 flex flex-wrap gap-2">
           {(['all', 'pending', 'inProgress', 'done'] as const).map((status) => (
             <button
               key={status}
-              onClick={() => setFilter(status)}
+              onClick={() => handleFilterChange(status)}
               className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors cursor-pointer ${
                 filter === status
                   ? 'bg-blue-600 text-white'
@@ -138,22 +174,21 @@ export default function TasksPage() {
               {status === 'all' ? 'All Tasks' : 
                status === 'inProgress' ? 'In Progress' :
                status.charAt(0).toUpperCase() + status.slice(1)}
-              {status !== 'all' && (
-                <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-black bg-blue-100 bg-opacity-20 rounded-full">
-                  {tasks.filter(task => task.status === status).length}
-                </span>
-              )}
             </button>
           ))}
         </div>
 
-        {/* Refresh Button */}
+        {/* Pagination Info and Refresh Button */}
         <div className="mb-6 flex justify-between items-center">
           <div className="text-sm text-gray-500 dark:text-gray-400">
-            Showing {filteredTasks.length} of {tasks.length} tasks
+            {pagination ? (
+              <>Showing {pagination.from} to {pagination.to} of {pagination.total} tasks</>
+            ) : (
+              <>Showing {tasks.length} tasks</>
+            )}
           </div>
           <button
-            onClick={fetchTasks}
+            onClick={handleRefresh}
             disabled={loading}
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-bold rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -186,7 +221,7 @@ export default function TasksPage() {
                 </div>
                 <div className="mt-4">
                   <button
-                    onClick={fetchTasks}
+                    onClick={handleRefresh}
                     className="bg-red-100 dark:bg-red-800 hover:bg-red-200 dark:hover:bg-red-700 text-red-800 dark:text-red-200 px-3 py-2 rounded-md text-sm font-bold"
                   >
                     Try again
@@ -198,7 +233,7 @@ export default function TasksPage() {
         )}
 
         {/* Tasks List */}
-        {filteredTasks.length === 0 && !loading && !error ? (
+        {tasks.length === 0 && !loading && !error ? (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">📝</div>
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
@@ -212,7 +247,7 @@ export default function TasksPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {filteredTasks.map((task) => (
+            {tasks.map((task) => (
               <div key={task.id} className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
                 <div className="px-6 py-4">
                   <div className="flex items-start justify-between">
@@ -248,6 +283,90 @@ export default function TasksPage() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {pagination && pagination.last_page > 1 && (
+          <div className="mt-8 flex items-center justify-between">
+            <div className="flex-1 flex justify-between sm:hidden">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+              >
+                Previous
+              </button>
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === pagination.last_page}
+                className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+              >
+                Next
+              </button>
+            </div>
+            <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm text-gray-700 dark:text-gray-300">
+                  Showing <span className="font-medium">{pagination.from}</span> to{' '}
+                  <span className="font-medium">{pagination.to}</span> of{' '}
+                  <span className="font-medium">{pagination.total}</span> results
+                </p>
+              </div>
+              <div>
+                <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700"
+                  >
+                    <span className="sr-only">Previous</span>
+                    <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                  
+                  {/* Page Numbers */}
+                  {Array.from({ length: Math.min(5, pagination.last_page) }, (_, i) => {
+                    let pageNumber;
+                    if (pagination.last_page <= 5) {
+                      pageNumber = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNumber = i + 1;
+                    } else if (currentPage >= pagination.last_page - 2) {
+                      pageNumber = pagination.last_page - 4 + i;
+                    } else {
+                      pageNumber = currentPage - 2 + i;
+                    }
+                    
+                    return (
+                      <button
+                        key={pageNumber}
+                        onClick={() => handlePageChange(pageNumber)}
+                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                          pageNumber === currentPage
+                            ? 'z-10 bg-blue-50 border-blue-500 text-blue-600 dark:bg-blue-900 dark:border-blue-600 dark:text-blue-200'
+                            : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700'
+                        }`}
+                      >
+                        {pageNumber}
+                      </button>
+                    );
+                  })}
+                  
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === pagination.last_page}
+                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700"
+                  >
+                    <span className="sr-only">Next</span>
+                    <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </nav>
+              </div>
+            </div>
           </div>
         )}
       </div>
