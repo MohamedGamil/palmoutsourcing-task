@@ -46,23 +46,22 @@ services:
       retries: 10
     networks: [sail]
 
-  # Temporary disabled
   # Next.js dev
-  # web:
-  #   image: node:20-alpine
-  #   working_dir: /app
-  #   command: sh -c "npm install && npm run dev"
-  #   ports:
-  #     - "3001:3000"
-  #   environment:
-  #     NODE_ENV: development
-  #     NEXT_PUBLIC_API_URL: "http://localhost:8081"
-  #   restart: unless-stopped
-  #   volumes:
-  #     - ./apps/web:/app
-  #   depends_on:
-  #     - laravel.test
-  #   networks: [sail]
+  web:
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm run dev"
+    ports:
+      - "3001:3000"
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: "http://localhost:8081"
+    restart: unless-stopped
+    volumes:
+      - ./apps/web:/app
+    depends_on:
+      - laravel.test
+    networks: [sail]
 
 networks:
   sail:
