@@ -48,8 +48,9 @@ clean: down
 ## - generates Swagger docs
 ## - installs Node deps for Next.js
 install:
+	mkdir -p ./data/sail-pgsql
 	docker run --rm -v $(PWD)/apps/api:/var/www/html -w /var/www/html composer install --no-interaction --prefer-dist
-	make up
+	$(SAIL_CMD) up -d --build
 	# Ensure API dependencies are installed (Composer via Sail)
 	$(SAIL_CMD) composer install --no-interaction --prefer-dist
 	# App key + storage symlink
